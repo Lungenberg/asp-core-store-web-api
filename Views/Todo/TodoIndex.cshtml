@@ -1,0 +1,45 @@
+﻿
+@model List<ASPCoreWebApplication.Models.TodoItem>
+@{
+    ViewData["Title"] = "Список дел";
+}
+
+<h1>Список дел</h1>
+
+<form asp-action="Add" method="post" style="margin-bottom:10px; margin-top:20px;">
+    <input type="text" name="title" placeholder="Новая задача" />
+    <button type="submit">
+        Добавить
+    </button>
+</form>
+
+@if (Model.Count == 0)
+{
+    <p>Задачи отсутствуют</p>
+}
+else
+{
+    <ul>
+        @foreach (var item in Model)
+        {
+            <li>
+                <form asp-action="Toggle" method="post" style="display:inline;">
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <button type="submit">
+                        @((item.isDone) ? "[ok]" : "[]")
+                    </button>
+                </form>
+
+                @item.Title
+
+                <form asp-action="Delete" method="post" style="display:inline; margin-left:8px">
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <button type="submit">
+                        X
+                    </button>
+
+                </form>
+            </li>
+        }
+    </ul>
+}

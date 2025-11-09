@@ -1,0 +1,21 @@
+﻿# Visual Studio cache
+.vs/
+
+# Build artifacts
+bin/
+obj/
+
+# User-specific
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider/Resharper (на всякий)
+.idea/
+*.DotSettings.user
+.vs/
+bin/
+obj/
+*.user
+*.suo
