@@ -1,6 +1,19 @@
- var builder = WebApplication.CreateBuilder(args);
+using ASPCoreWebApplication.Models;
+using ASPCoreWebApplication.Services;
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+// настраиваем DI и регистрируем MusicService
+builder.Services.Configure<MusicStoreDatabaseSettings>(
+    builder.Configuration.GetSection("MusicStoreDatabase"));
+
+builder.Services.AddSingleton<MusicService>();
+
+builder.Services.AddControllers().AddJsonOptions(
+    options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
