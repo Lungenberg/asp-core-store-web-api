@@ -1,6 +1,7 @@
-﻿namespace ASPCoreWebApplication.Services
+﻿ namespace ASPCoreWebApplication.Services
 {
     public class MusicService
     {
+
     }
 }
