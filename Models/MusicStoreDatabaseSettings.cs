@@ -2,8 +2,8 @@
 {
     public class MusicStoreDatabaseSettings
     {
-        public string ConnectionsString { get; set; }
-        public string DatabaseName { get; set; }
-        public string BooksCollectionName { get; set; }
+        public string ConnectionsString { get; set; } = null!;
+        public string DatabaseName { get; set; } = null!;
+        public string MusicCollectionName { get; set; } = null!;
     }
 }
