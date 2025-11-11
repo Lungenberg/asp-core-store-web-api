@@ -3,9 +3,9 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System.Security.Cryptography.X509Certificates;
 
-namespace ASPCoreWebApplication.Services
+namespace ASPCoreWebApplication.Services.Implementation
 {
-    public class MusicService
+    public class MusicService : IMusicService
     {
         private readonly IMongoCollection<Category> _musicCollection;
 
