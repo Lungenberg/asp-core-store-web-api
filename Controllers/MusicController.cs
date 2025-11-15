@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ASPCoreWebApplication.Models;
 using ASPCoreWebApplication.Services;
+using ASPCoreWebApplication.Dto;
 
 namespace ASPCoreWebApplication.Controllers
 {
@@ -16,6 +17,7 @@ namespace ASPCoreWebApplication.Controllers
         [HttpGet]
         public async Task<List<Category>> Get() => await _musicService.GetAllAsync();
 
+
         [HttpGet("{id:length(24)}")]
         public async Task<ActionResult<Category>> Get(string id)
         {
@@ -23,33 +25,59 @@ namespace ASPCoreWebApplication.Controllers
 
             if (music == null)
             {
-                return NotFound();
+                return NotFound(); // 404
             }
 
-            return music;
+            return music; // автоматом обернёт в 200 ОК и сериализует в JSON
         }
+
 
         [HttpPost]
-        public async Task<IActionResult> Post(Category newMusic)
+        public async Task<ActionResult<CategoryResponseDto>> Post(CategoryCreateDto musicDto)
         {
-            await _musicService.CreateAsync(newMusic);
-            return CreatedAtAction(nameof(Get), new { id = newMusic.Id }, newMusic);
+            var entity = new Category
+            {
+                AlbumName = musicDto.AlbumName,
+                Price = musicDto.Price,
+                Genre = musicDto.Genre,
+                Author = musicDto.Author
+            };
+
+            await _musicService.CreateAsync(entity); // монго автоматически проставляет id
+
+            var response = new CategoryResponseDto
+            {
+                Id = entity.Id!,
+                AlbumName = entity.AlbumName,
+                Price = entity.Price,
+                Genre = entity.Genre,
+                Author = entity.Author
+            };
+
+            return CreatedAtAction(nameof(Get), new { id = response.Id }, response);
         }
 
+
         [HttpPut("{id:length(24)}")]
-        public async Task<IActionResult> Update(string id, Category updatedMusic)
+        public async Task<IActionResult> Update(string id, [FromBody] CategoryUpdateDto updatedDto)
         {
-            var music = await _musicService.GetAsync(id);
-            if (music == null)
+            var current = await _musicService.GetAsync(id);
+            if (current == null)
             {
                 return NotFound();
             }
 
-            updatedMusic.Id = music.Id;
+            current.AlbumName = updatedDto.AlbumName;
+            current.Price = updatedDto.Price;
+            current.Genre = updatedDto.Genre;
+            current.Author = updatedDto.Author;
 
-            await _musicService.UpdateAsync(id, updatedMusic);
+            current.Id = id;
+
+            await _musicService.UpdateAsync(id, current);
             return NoContent();
         }
+
 
         [HttpDelete("{id:length(24)}")]
         public async Task<IActionResult> Delete(string id)
