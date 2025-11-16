@@ -1,5 +1,6 @@
 ﻿using ASPCoreWebApplication.Models;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Security.Cryptography.X509Certificates;
 
@@ -44,5 +45,19 @@ namespace ASPCoreWebApplication.Services.Implementation
             await _musicCollection
             .DeleteOneAsync(x => x.Id == id);
 
+        public async Task<List<Category>> SearchByTitleAsync(string? title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                // если ничечо удаётся найти, то просто GetAllAsync
+                return await _musicCollection.Find(_ => true).ToListAsync(); 
+            }
+
+            // регистронезависимость
+            var regex = new BsonRegularExpression(title, "i");
+            var filter = Builders<Category>.Filter.Regex(a => a.AlbumName, regex);
+
+            return await _musicCollection.Find(filter).ToListAsync();
+        }
     }
 }
