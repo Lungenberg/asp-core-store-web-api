@@ -21,14 +21,14 @@ namespace ASPCoreWebApplication.Controllers
         [HttpGet("{id:length(24)}")]
         public async Task<ActionResult<Category>> Get(string id)
         {
-            var music = await _musicService.GetAsync(id);
+            var album = await _musicService.GetAsync(id);
 
-            if (music == null)
+            if (album == null)
             {
                 return NotFound(); // 404
             }
 
-            return music; // автоматом обернёт в 200 ОК и сериализует в JSON
+            return album; // автоматом обернёт в 200 ОК и сериализует в JSON
         }
 
 
@@ -82,8 +82,8 @@ namespace ASPCoreWebApplication.Controllers
         [HttpDelete("{id:length(24)}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var music = await _musicService.GetAsync(id);
-            if (music == null)
+            var album = await _musicService.GetAsync(id);
+            if (album == null)
             {
                 return NotFound();
             }
@@ -92,5 +92,11 @@ namespace ASPCoreWebApplication.Controllers
             return NoContent();
         }
 
+        [HttpGet("search")]
+        public async Task<ActionResult<List<CategoryResponseDto>>> Search([FromQuery] string? title)
+        {
+            var albums = await _musicService.SearchByTitleAsync(title);
+            return Ok(albums);
+        }
     }
 }

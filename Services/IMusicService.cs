@@ -9,5 +9,6 @@ namespace ASPCoreWebApplication.Services
         Task CreateAsync(Category newCategory);
         Task UpdateAsync(string id, Category updatedCategory);
         Task RemoveAsync(string id);
+        Task<List<Category>> SearchByTitleAsync(string title);
     }
 }
