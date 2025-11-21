@@ -15,20 +15,27 @@ namespace ASPCoreWebApplication.Controllers
         public MusicController(IMusicService musicService) => _musicService = musicService;
 
         [HttpGet]
-        public async Task<List<Category>> Get() => await _musicService.GetAllAsync();
+        public async Task<ActionResult<List<CategoryResponseDto>>> Get(
+            [FromQuery] string? title,
+            [FromQuery] string? sortBy,
+            [FromQuery] string? sortDirection)
+        {
+            var albums = await _musicService.GetAllAsync(title, sortBy, sortDirection);
+            return Ok(albums);
+        }
 
 
         [HttpGet("{id:length(24)}")]
-        public async Task<ActionResult<Category>> Get(string id)
+        public async Task<ActionResult<CategoryResponseDto>> Get(string id)
         {
-            var album = await _musicService.GetAsync(id);
+            var albums = await _musicService.GetAsync(id);
 
-            if (album == null)
+            if (albums == null)
             {
                 return NotFound(); // 404
             }
 
-            return album; // автоматом обернёт в 200 ОК и сериализует в JSON
+            return Ok(albums); // автоматом обернёт в 200 ОК и сериализует в JSON
         }
 
 
@@ -97,6 +104,14 @@ namespace ASPCoreWebApplication.Controllers
         {
             var albums = await _musicService.SearchByTitleAsync(title);
             return Ok(albums);
+        }
+
+        [HttpGet("count")]
+        public async Task<ActionResult<CategoryResponseDto>> GetCount()
+        {
+            var count = await _musicService.GetCountAsync();
+
+            return Ok(new { count });
         }
     }
 }
