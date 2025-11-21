@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 
 namespace ASPCoreWebApplication.Services.Implementation
 {
@@ -23,10 +24,53 @@ namespace ASPCoreWebApplication.Services.Implementation
                 musicStoreDatabaseSettings.Value.MusicCollectionName);
         }
 
-        public async Task<List<Category>> GetAllAsync() =>
-            await _musicCollection
-            .Find(_ => true)
-            .ToListAsync();
+        public async Task<List<Category>> GetAllAsync(string? title, string? sortBy, string? sortDirection)
+        {
+            FilterDefinition<Category> filter = FilterDefinition<Category>.Empty; // описание поиска как db.collection.find({ . . . })
+
+            if (!string.IsNullOrWhiteSpace(title)) // если title не задан - не фильтруем
+            {
+                var escaped = Regex.Escape(title); // экранирование (чтобы метасимволы воспринимались как элемент строки)
+                var regex = new BsonRegularExpression(escaped, "i"); // независимость регистров
+
+                filter = Builders<Category>.Filter.Regex(a => a.AlbumName, regex);
+
+            }
+
+            SortDefinition<Category> sort;
+            
+            // для сравнения в нижнем регистре в независимости от входных данных
+            sortBy = sortBy?.ToLowerInvariant();
+            sortDirection = sortDirection?.ToLowerInvariant();
+
+            bool desc = sortDirection == "desc";
+            
+            switch (sortBy)
+            {
+                case "price":
+                    sort = desc
+                        ? Builders<Category>.Sort.Descending(a => a.Price)
+                        : Builders<Category>.Sort.Ascending(a => a.Price);
+                    break;
+
+                case "author":
+                    sort = desc
+                        ? Builders<Category>.Sort.Descending(a => a.Author)
+                        : Builders<Category>.Sort.Ascending(a => a.Author);
+                    break;
+
+                default:
+                    sort = desc
+                        ? Builders<Category>.Sort.Descending(a => a.AlbumName)
+                        : Builders<Category>.Sort.Ascending(a => a.AlbumName);
+                    break;
+            }
+
+            return await _musicCollection
+                .Find(filter)
+                .Sort(sort)
+                .ToListAsync();
+        }
 
         public async Task<Category?> GetAsync(string id) =>
             await _musicCollection
@@ -49,7 +93,7 @@ namespace ASPCoreWebApplication.Services.Implementation
         {
             if (string.IsNullOrWhiteSpace(title))
             {
-                // если ничечо удаётся найти, то просто GetAllAsync
+                // если ничего удаётся найти, то просто GetAllAsync
                 return await _musicCollection.Find(_ => true).ToListAsync(); 
             }
 
@@ -59,5 +103,12 @@ namespace ASPCoreWebApplication.Services.Implementation
 
             return await _musicCollection.Find(filter).ToListAsync();
         }
+
+        public async Task<int> GetCountAsync()
+        {
+            return (int)await _musicCollection.CountDocumentsAsync(_ => true);
+        }
+
+
     }
 }
