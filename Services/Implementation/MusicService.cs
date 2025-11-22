@@ -24,8 +24,9 @@ namespace ASPCoreWebApplication.Services.Implementation
                 musicStoreDatabaseSettings.Value.MusicCollectionName);
         }
 
-        public async Task<List<Category>> GetAllAsync(string? title, string? sortBy, string? sortDirection)
+        public async Task<List<Category>> GetAllAsync(string? title, List<string>? genres, string? sortBy, string? sortDirection)
         {
+
             FilterDefinition<Category> filter = FilterDefinition<Category>.Empty; // описание поиска как db.collection.find({ . . . })
 
             if (!string.IsNullOrWhiteSpace(title)) // если title не задан - не фильтруем
@@ -33,8 +34,13 @@ namespace ASPCoreWebApplication.Services.Implementation
                 var escaped = Regex.Escape(title); // экранирование (чтобы метасимволы воспринимались как элемент строки)
                 var regex = new BsonRegularExpression(escaped, "i"); // независимость регистров
 
-                filter = Builders<Category>.Filter.Regex(a => a.AlbumName, regex);
+                var titleFilter = Builders<Category>.Filter.Regex(a => a.AlbumName, regex);
 
+            }
+
+            if (genres != null && genres.Count > 0)
+            {
+                var genreFilter = Builders<Category>.Filter.In(a => a.Genre, genres); // проверка на совпадение через .In ($in)
             }
 
             SortDefinition<Category> sort;
@@ -109,6 +115,16 @@ namespace ASPCoreWebApplication.Services.Implementation
             return (int)await _musicCollection.CountDocumentsAsync(_ => true);
         }
 
+        public async Task<List<string>> GetDistinctGenresAsync()
+        {
+            var filter = FilterDefinition<Category>.Empty; // фильтр для прохода по всей коллекции
+
+            var genres = await _musicCollection
+                .Distinct<string>("Genre", filter)
+                .ToListAsync();
+
+            return genres;
+        }
 
     }
 }
