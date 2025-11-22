@@ -24,7 +24,11 @@ namespace ASPCoreWebApplication.Services.Implementation
                 musicStoreDatabaseSettings.Value.MusicCollectionName);
         }
 
-        public async Task<List<Category>> GetAllAsync(string? title, List<string>? genres, string? sortBy, string? sortDirection)
+        public async Task<List<Category>> GetAllAsync(
+            string? title, 
+            List<string>? genres,
+            string? sortBy, 
+            string? sortDirection)
         {
 
             FilterDefinition<Category> filter = FilterDefinition<Category>.Empty; // описание поиска как db.collection.find({ . . . })
