@@ -17,10 +17,11 @@ namespace ASPCoreWebApplication.Controllers
         [HttpGet]
         public async Task<ActionResult<List<CategoryResponseDto>>> Get(
             [FromQuery] string? title,
+            [FromQuery] List<string>? genres,
             [FromQuery] string? sortBy,
             [FromQuery] string? sortDirection)
         {
-            var albums = await _musicService.GetAllAsync(title, sortBy, sortDirection);
+            var albums = await _musicService.GetAllAsync(title, genres, sortBy, sortDirection);
             return Ok(albums);
         }
 
@@ -112,6 +113,13 @@ namespace ASPCoreWebApplication.Controllers
             var count = await _musicService.GetCountAsync();
 
             return Ok(new { count });
+        }
+
+        [HttpGet("genres")]
+        public async Task<ActionResult<List<string>>> GetGenres()
+        {
+            var genres = await _musicService.GetDistinctGenresAsync();
+            return Ok(genres);
         }
     }
 }

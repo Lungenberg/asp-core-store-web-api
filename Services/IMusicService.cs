@@ -4,7 +4,7 @@ namespace ASPCoreWebApplication.Services
 {
     public interface IMusicService
     {
-        Task<List<Category>> GetAllAsync(string? title, string? sortBy, string? sortDirection);
+        Task<List<Category>> GetAllAsync(string? title, List<string>? genres, string? sortBy, string? sortDirection);
         Task<Category?> GetAsync(string id);
         Task CreateAsync(Category newCategory);
         Task UpdateAsync(string id, Category updatedCategory);
@@ -12,5 +12,7 @@ namespace ASPCoreWebApplication.Services
         Task<List<Category>> SearchByTitleAsync(string title);
 
         Task<int> GetCountAsync();
+
+        Task<List<string>> GetDistinctGenresAsync();
     }
 }
