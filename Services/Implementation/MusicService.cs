@@ -24,7 +24,11 @@ namespace ASPCoreWebApplication.Services.Implementation
                 musicStoreDatabaseSettings.Value.MusicCollectionName);
         }
 
-        public async Task<List<Category>> GetAllAsync(string? title, List<string>? genres, string? sortBy, string? sortDirection)
+        public async Task<List<Category>> GetAllAsync(
+            string? title, 
+            List<string>? genres,
+            string? sortBy, 
+            string? sortDirection)
         {
 
             FilterDefinition<Category> filter = FilterDefinition<Category>.Empty; // описание поиска как db.collection.find({ . . . })
@@ -36,11 +40,16 @@ namespace ASPCoreWebApplication.Services.Implementation
 
                 var titleFilter = Builders<Category>.Filter.Regex(a => a.AlbumName, regex);
 
+                if (filter == FilterDefinition<Category>.Empty) filter = titleFilter; // если фильтр пустой, то просто присвоение
+                else Builders<Category>.Filter.And(filter, titleFilter); // иначе склеивание через AND
             }
 
             if (genres != null && genres.Count > 0)
             {
                 var genreFilter = Builders<Category>.Filter.In(a => a.Genre, genres); // проверка на совпадение через .In ($in)
+
+                if (filter == FilterDefinition<Category>.Empty) filter = genreFilter;
+                else Builders<Category>.Filter.And(filter, genreFilter);
             }
 
             SortDefinition<Category> sort;
