@@ -28,7 +28,9 @@ namespace ASPCoreWebApplication.Services.Implementation
             string? title, 
             List<string>? genres,
             string? sortBy, 
-            string? sortDirection)
+            string? sortDirection,
+            int page,
+            int limitSize)
         {
 
             FilterDefinition<Category> filter = FilterDefinition<Category>.Empty; // описание поиска как db.collection.find({ . . . })
@@ -81,9 +83,18 @@ namespace ASPCoreWebApplication.Services.Implementation
                     break;
             }
 
+            // нормализация пагинации
+            if (page < 1) page = 1;
+            if (page <= 0) limitSize = 10; // по умолчанию
+            if (page > 100) limitSize = 100; // ограничение
+
+            int skip = (page - 1) * limitSize; // формула пропуска количества контента для n страницы
+
             return await _musicCollection
                 .Find(filter)
                 .Sort(sort)
+                .Skip(skip)
+                .Limit(limitSize)
                 .ToListAsync();
         }
 
