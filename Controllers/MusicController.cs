@@ -19,9 +19,12 @@ namespace ASPCoreWebApplication.Controllers
             [FromQuery] string? title,
             [FromQuery] List<string>? genres,
             [FromQuery] string? sortBy,
-            [FromQuery] string? sortDirection)
+            [FromQuery] string? sortDirection,
+            [FromQuery] int page = 1,
+            [FromQuery] int limitPage = 10
+            )
         {
-            var albums = await _musicService.GetAllAsync(title, genres, sortBy, sortDirection);
+            var albums = await _musicService.GetAllAsync(title, genres, sortBy, sortDirection, page, limitPage);
             return Ok(albums);
         }
 
