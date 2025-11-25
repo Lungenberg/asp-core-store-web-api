@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ASPCoreWebApplication.Models;
 using ASPCoreWebApplication.Services;
 using ASPCoreWebApplication.Dto;
+using ASPCoreWebApplication.ExceptionHandler;
 
 namespace ASPCoreWebApplication.Controllers
 {
@@ -36,7 +37,7 @@ namespace ASPCoreWebApplication.Controllers
 
             if (albums == null)
             {
-                return NotFound(); // 404
+                throw new NotFoundException($"Album with id '{id}' not found");
             }
 
             return Ok(albums); // автоматом обернёт в 200 ОК и сериализует в JSON
